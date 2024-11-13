@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Все заказы</title>
+    <link rel="stylesheet" href="{% static 'css/orders.css' %}">
+    <link rel="icon" href="{% static 'logo.jpg' %}" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
+</head>
+<body>
+<h1 style="font-family: Montserrat, sans-serif; font-size: 64px; font-weight: 400; line-height: 20px;">Список всех заказов:</h1>
+{% block content %}
+<table class='tableorders'>
+    <tr>
+        <th style="font-family: Montserrat, sans-serif; font-size: 16px; font-weight: 400; line-height: 20px;">Номер заказа</th>
+        <th style="font-family: Montserrat, sans-serif; font-size: 16px; font-weight: 400; line-height: 20px;">Продукт</th>
+        <th style="font-family: Montserrat, sans-serif; font-size: 16px; font-weight: 400; line-height: 20px;">Дата заказа</th>
+        <th style="font-family: Montserrat, sans-serif; font-size: 16px; font-weight: 400; line-height: 20px;">Покупатель</th>
+    </tr>
+    {% for order in list_of_all_orders %}
+    <tr>
+        <!-- Format order date and add sequential number -->
+        <td>{{ order.created|date:"d.m.Y" }} - {{ forloop.counter|stringformat:"03d" }}</td>
+        <td>мне лень</td>
+        <td>{{ order.created|date:"F j, Y" }}</td>
+        <td>{{ order.first_name }} {{ order.last_name }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock content %}
+<form action="{% url 'shop:search' %}" method="GET">
+    {% csrf_token %}
+    <input name="q" type="text" placeholder="Введите имя или фамилию...">
+</form>
+<div class="button">
+    <a class="bnt2" href="{% url 'shop:home' %}" type="submit">Вернуться назад</a>
+</div>
+
+<h2>Ваши заказы</h2>
+<ul>
+    {% for order in orders %}
+    <li>
+        <p>Id заказа: {{ order.created|date:"d.m.Y" }} - {{ forloop.counter|stringformat:"03d" }}</p>
+        <p>Дата заказа: {{ order.created }}</p>
+        <p>Статус оплаты: {{ order.paid }}</p>
+        <ul class='list_orders_user'>
+            {% for item in order.items.all %}
+            <li>
+                Продукт: {{ item.product.name }} |
+                Количество: {{ item.quantity }} |
+                Цена: {{ item.price }} |
+            </li>
+            {% endfor %}
+        </ul>
+        <p>Общая стоимость: {{ order.get_total_cost }}</p>
+    </li>
+    {% empty %}
+    <li>У вас нет заказов.</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>
